@@ -2,7 +2,7 @@
 Fully isolated, non-root Docker setup for [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview).  
 One repo, one Dockerfile — spin up a fresh containerized Claude for every project.
 
-This is a one-shot claude prompt - use this sh*t at your own risk, or don't, I keep it public so I have it where I need it
+This is a one-shot claude prompt - use this sh\*t at your own risk, or don't, I keep it public so I have it where I need it
 
 ## Quick Start
 
