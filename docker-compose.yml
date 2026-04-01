@@ -1,0 +1,55 @@
+# ╔═══════════════════════════════════════════════════════════════════╗
+# ║  Claude Code — Isolated Container                                 ║
+# ║                                                                   ║
+# ║  Basic:     docker compose run --rm claude                        ║
+# ║  With DinD: docker compose --profile dind run --rm claude         ║
+# ║                                                                   ║
+# ║  Set PROJECT_DIR in .env (or it defaults to .)                    ║
+# ║  Claude will prompt you to log in interactively on each start.    ║
+# ╚═══════════════════════════════════════════════════════════════════╝
+
+services:
+
+  claude:
+    build: .
+    stdin_open: true
+    tty: true
+
+    environment:
+      # DinD connection — safe to leave set; entrypoint handles missing daemon gracefully
+      - DOCKER_HOST=tcp://dind:2376
+      - DOCKER_TLS_VERIFY=1
+      - DOCKER_CERT_PATH=/certs/client
+
+    volumes:
+      - ${PROJECT_DIR:-.}:/workspace
+      - docker-certs-client:/certs/client:ro
+
+    depends_on:
+      dind:
+        condition: service_healthy
+        required: false
+
+  # ── Docker-in-Docker sidecar (opt-in via --profile dind) ───────────
+  dind:
+    image: docker:27-dind
+    privileged: true
+    profiles: [dind]
+
+    environment:
+      - DOCKER_TLS_CERTDIR=/certs
+
+    volumes:
+      - docker-certs-ca:/certs/ca
+      - docker-certs-client:/certs/client
+      - ${PROJECT_DIR:-.}:/workspace
+
+    healthcheck:
+      test: ["CMD", "docker", "info"]
+      interval: 3s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  docker-certs-ca:
+  docker-certs-client:
