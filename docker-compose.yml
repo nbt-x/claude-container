@@ -24,6 +24,7 @@ services:
     volumes:
       - ${PROJECT_DIR:-.}:/workspace
       - docker-certs-client:/certs/client:ro
+      - claude-config:/home/claude/.claude
 
     depends_on:
       dind:
@@ -53,3 +54,4 @@ services:
 volumes:
   docker-certs-ca:
   docker-certs-client:
+  claude-config:
