@@ -1,13 +1,3 @@
-# ╔═══════════════════════════════════════════════════════════════════╗
-# ║  Claude Code — Isolated Container                                 ║
-# ║                                                                   ║
-# ║  Basic:     docker compose run --rm claude                        ║
-# ║  With DinD: docker compose --profile dind run --rm claude         ║
-# ║                                                                   ║
-# ║  Set PROJECT_DIR in .env (or it defaults to .)                    ║
-# ║  Claude will prompt you to log in interactively on each start.    ║
-# ╚═══════════════════════════════════════════════════════════════════╝
-
 services:
 
   claude:
@@ -16,6 +6,8 @@ services:
     tty: true
 
     environment:
+      # Centralise all Claude Code state (auth, sessions, settings) into one dir
+      - CLAUDE_CONFIG_DIR=/home/claude/.claude
       # DinD connection — safe to leave set; entrypoint handles missing daemon gracefully
       - DOCKER_HOST=tcp://dind:2376
       - DOCKER_TLS_VERIFY=1
@@ -23,8 +15,8 @@ services:
 
     volumes:
       - ${PROJECT_DIR:-.}:/workspace
-      - docker-certs-client:/certs/client:ro
       - claude-config:/home/claude/.claude
+      - docker-certs-client:/certs/client:ro
 
     depends_on:
       dind:
@@ -52,6 +44,6 @@ services:
       retries: 10
 
 volumes:
+  claude-config:
   docker-certs-ca:
   docker-certs-client:
-  claude-config:
